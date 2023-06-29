@@ -3,9 +3,6 @@ package ru.practicum.server;
 import ru.practicum.dto.EndpointRequest;
 import ru.practicum.server.dto.EndpointHit;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 public class EndpointMapper {
 
     public static EndpointHit toEndpointHit(EndpointRequest endpointRequest) {
@@ -20,8 +17,7 @@ public class EndpointMapper {
             endpointHit.setUri(endpointRequest.getUri());
         }
         if (endpointRequest.getTimestamp() != null) {
-            endpointHit.setTimestamp(LocalDateTime.parse(endpointRequest.getTimestamp(),
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            endpointHit.setTimestamp(endpointRequest.getTimestamp());
         }
         return endpointHit;
     }
@@ -35,7 +31,7 @@ public class EndpointMapper {
             endpointRequest.setUri(endpointHit.getUri());
         }
         if (endpointHit.getTimestamp() != null) {
-            endpointRequest.setTimestamp(String.valueOf(endpointHit.getTimestamp()));
+            endpointRequest.setTimestamp(endpointHit.getTimestamp());
         }
         if (endpointHit.getIp() != null) {
             endpointRequest.setIp(endpointHit.getIp());

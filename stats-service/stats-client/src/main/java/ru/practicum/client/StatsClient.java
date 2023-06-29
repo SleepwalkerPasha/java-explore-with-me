@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -27,9 +28,9 @@ public class StatsClient extends BaseClient {
                                                     List<String> uris,
                                                     Boolean unique) {
         Map<String, Object> parameters = Map.of(
-                "start", start,
-                "end", end,
-                "uris", uris,
+                "start", start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                "end", end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                "uris", String.join(",", uris),
                 "unique", unique
         );
         return get("?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
