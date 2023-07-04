@@ -1,4 +1,4 @@
-package ru.practicum.ewm.common.dto.entities;
+package ru.practicum.ewm.dto.entities;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,16 +12,16 @@ import javax.persistence.Table;
 
 @Data
 @Entity
-@Table(name = "users")
+@Table(name = "locations")
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserDto {
+public class LocationDto {
 
     @Id
     Long id;
 
-    String email;
+    Double lat;
 
-    String name;
+    Double lon;
 }

@@ -1,4 +1,4 @@
-package ru.practicum.ewm.common.dto.entities;
+package ru.practicum.ewm.dto.entities;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -9,24 +9,19 @@ import lombok.experimental.FieldDefaults;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 @Data
 @Entity
-@Table(name = "compilations")
+@Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CompilationDto {
+public class UserDto {
 
     @Id
-    private Long id;
+    Long id;
 
-    @NotNull
-    Boolean pinned;
+    String email;
 
-    @NotEmpty
-    String title;
-
+    String name;
 }

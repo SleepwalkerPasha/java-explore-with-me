@@ -1,7 +1,9 @@
-package ru.practicum.ewm.common.dto;
+package ru.practicum.ewm.dto.mapper;
 
-import ru.practicum.ewm.common.dto.api.Compilation;
-import ru.practicum.ewm.common.dto.entities.CompilationDto;
+import ru.practicum.ewm.dto.api.Compilation;
+import ru.practicum.ewm.dto.entities.CompilationDto;
+
+import java.util.stream.Collectors;
 
 public class CompilationMapper {
 
@@ -16,6 +18,12 @@ public class CompilationMapper {
         if (compilationDto.getPinned() != null) {
             compilation.setPinned(compilationDto.getPinned());
         }
+        if (compilationDto.getEvents() != null) {
+            compilation.setEvents(compilationDto.getEvents()
+                    .stream()
+                    .map(EventMapper::toEventShort)
+                    .collect(Collectors.toList()));
+        }
         return compilation;
     }
 
@@ -29,6 +37,12 @@ public class CompilationMapper {
         }
         if (compilation.getPinned() != null) {
             compilationDto.setPinned(compilation.getPinned());
+        }
+        if (compilation.getEvents() != null) {
+            compilationDto.setEvents(compilation.getEvents()
+                    .stream()
+                    .map(EventMapper::toEventDto)
+                    .collect(Collectors.toList()));
         }
         return compilationDto;
     }
