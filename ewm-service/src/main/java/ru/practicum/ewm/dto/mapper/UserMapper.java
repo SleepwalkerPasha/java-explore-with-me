@@ -1,5 +1,6 @@
 package ru.practicum.ewm.dto.mapper;
 
+import ru.practicum.ewm.admin.dto.api.UserFull;
 import ru.practicum.ewm.dto.api.UserShort;
 import ru.practicum.ewm.dto.entities.UserDto;
 
@@ -25,5 +26,19 @@ public class UserMapper {
             userDto.setName(userShort.getName());
         }
         return userDto;
+    }
+
+    public static UserFull toUserFull(UserDto userDto) {
+        UserFull userFull = new UserFull();
+        if (userDto.getId() != null) {
+            userFull.setId(userDto.getId());
+        }
+        if (userDto.getName() != null) {
+            userFull.setName(userDto.getName());
+        }
+        if (userDto.getEmail() != null) {
+            userFull.setEmail(userDto.getEmail());
+        }
+        return userFull;
     }
 }

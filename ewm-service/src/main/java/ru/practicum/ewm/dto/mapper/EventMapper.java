@@ -2,6 +2,8 @@ package ru.practicum.ewm.dto.mapper;
 
 import ru.practicum.ewm.dto.api.Event;
 import ru.practicum.ewm.dto.api.EventShort;
+import ru.practicum.ewm.closed.dto.api.NewEvent;
+import ru.practicum.ewm.closed.dto.api.UpdateEventUserRequest;
 import ru.practicum.ewm.dto.entities.EventDto;
 
 public class EventMapper {
@@ -40,7 +42,54 @@ public class EventMapper {
 
     public static Event toEvent(EventDto eventDto) {
         Event event = new Event();
-
+        if (eventDto.getId() != null) {
+            event.setId(eventDto.getId());
+        }
+        if (eventDto.getAnnotation() != null) {
+            event.setAnnotation(eventDto.getAnnotation());
+        }
+        if (eventDto.getTitle() != null) {
+            event.setTitle(eventDto.getTitle());
+        }
+        if (eventDto.getViews() != null) {
+            event.setViews(eventDto.getViews());
+        }
+        if (eventDto.getConfirmedRequests() != null) {
+            event.setConfirmedRequests(eventDto.getConfirmedRequests());
+        }
+        if (eventDto.getEventDate() != null) {
+            event.setEventDate(eventDto.getEventDate());
+        }
+        if (eventDto.getPaid() != null) {
+            event.setPaid(eventDto.getPaid());
+        }
+        if (eventDto.getCategory() != null) {
+            event.setCategory(CategoryMapper.toCategory(eventDto.getCategory()));
+        }
+        if (eventDto.getInitiator() != null) {
+            event.setInitiator(UserMapper.toUserShort(eventDto.getInitiator()));
+        }
+        if (eventDto.getLocation() != null) {
+            event.setLocation(LocationMapper.toLocation(eventDto.getLocation()));
+        }
+        if (eventDto.getCreatedOn() != null) {
+            event.setCreatedOn(eventDto.getCreatedOn());
+        }
+        if (eventDto.getDescription() != null) {
+            event.setDescription(eventDto.getDescription());
+        }
+        if (eventDto.getParticipantLimit() != null) {
+            event.setParticipantLimit(eventDto.getParticipantLimit());
+        }
+        if (eventDto.getPublishedOn() != null) {
+            event.setPublishedOn(eventDto.getPublishedOn());
+        }
+        if (eventDto.getRequestModeration() != null) {
+            event.setRequestModeration(eventDto.getRequestModeration());
+        }
+        if (eventDto.getState() != null) {
+            event.setState(eventDto.getState());
+        }
         return event;
     }
 
@@ -76,4 +125,63 @@ public class EventMapper {
         }
         return eventDto;
     }
+
+    public static EventDto toEventDto(NewEvent newEvent) {
+        EventDto eventDto = new EventDto();
+        if (newEvent.getAnnotation() != null) {
+            eventDto.setAnnotation(newEvent.getAnnotation());
+        }
+        if (newEvent.getTitle() != null) {
+            eventDto.setTitle(newEvent.getTitle());
+        }
+        if (newEvent.getPaid() != null) {
+            eventDto.setPaid(newEvent.getPaid());
+        }
+        if (newEvent.getParticipantLimit() != null) {
+            eventDto.setParticipantLimit(newEvent.getParticipantLimit());
+        }
+        if (newEvent.getEventDate() != null) {
+            eventDto.setEventDate(newEvent.getEventDate());
+        }
+        if (newEvent.getDescription() != null) {
+            eventDto.setDescription(newEvent.getDescription());
+        }
+        if (newEvent.getRequestModeration() != null) {
+            eventDto.setRequestModeration(newEvent.getRequestModeration());
+        }
+        if (newEvent.getLocation() != null) {
+            eventDto.setLocation(LocationMapper.toLocationDto(newEvent.getLocation()));
+        }
+        return eventDto;
+    }
+
+    public static EventDto toEventDto(UpdateEventUserRequest updateEventUserRequest) {
+        EventDto eventDto = new EventDto();
+        if (updateEventUserRequest.getAnnotation() != null) {
+            eventDto.setAnnotation(updateEventUserRequest.getAnnotation());
+        }
+        if (updateEventUserRequest.getTitle() != null) {
+            eventDto.setTitle(updateEventUserRequest.getTitle());
+        }
+        if (updateEventUserRequest.getPaid() != null) {
+            eventDto.setPaid(updateEventUserRequest.getPaid());
+        }
+        if (updateEventUserRequest.getParticipantLimit() != null) {
+            eventDto.setParticipantLimit(updateEventUserRequest.getParticipantLimit());
+        }
+        if (updateEventUserRequest.getEventDate() != null) {
+            eventDto.setEventDate(updateEventUserRequest.getEventDate());
+        }
+        if (updateEventUserRequest.getDescription() != null) {
+            eventDto.setDescription(updateEventUserRequest.getDescription());
+        }
+        if (updateEventUserRequest.getRequestModeration() != null) {
+            eventDto.setRequestModeration(updateEventUserRequest.getRequestModeration());
+        }
+        if (updateEventUserRequest.getLocation() != null) {
+            eventDto.setLocation(LocationMapper.toLocationDto(updateEventUserRequest.getLocation()));
+        }
+        return eventDto;
+    }
+
 }

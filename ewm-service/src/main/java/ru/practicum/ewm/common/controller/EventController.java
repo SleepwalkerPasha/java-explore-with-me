@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.ewm.dto.api.Event;
 import ru.practicum.ewm.dto.api.EventShort;
 import ru.practicum.ewm.common.service.EventService;
 
@@ -36,7 +37,7 @@ public class EventController {
     }
 
     @GetMapping(path = "/{id}")
-    public EventShort getEventById(@PathVariable(name = "id") long id) {
+    public Event getEventById(@PathVariable(name = "id") long id) {
         return eventService.getEventById(id);
     }
 }

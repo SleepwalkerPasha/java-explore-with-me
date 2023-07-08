@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.practicum.ewm.dto.api.Event;
 import ru.practicum.ewm.dto.api.EventShort;
 import ru.practicum.ewm.dto.entities.EventDto;
 import ru.practicum.ewm.dto.mapper.EventMapper;
@@ -53,11 +54,11 @@ public class EventService {
         return eventDtoPage.stream().map(EventMapper::toEventShort).collect(Collectors.toList());
     }
 
-    public EventShort getEventById(long id) {
+    public Event getEventById(long id) {
         Optional<EventDto> byId = eventRepository.findById(id);
         if (byId.isEmpty()) {
             throw new NotFoundException(String.format("Event with id=%d was not found", id));
         }
-        return EventMapper.toEventShort(byId.get());
+        return EventMapper.toEvent(byId.get());
     }
 }

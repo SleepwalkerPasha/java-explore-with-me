@@ -1,4 +1,4 @@
-package ru.practicum.ewm.dto;
+package ru.practicum.ewm.dto.api;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AccessLevel;

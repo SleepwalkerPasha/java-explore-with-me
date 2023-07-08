@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class Compilation {
     @NotNull
     Boolean pinned;
 
-    @NotEmpty
+    @NotBlank
     String title;
 
     List<EventShort> events;

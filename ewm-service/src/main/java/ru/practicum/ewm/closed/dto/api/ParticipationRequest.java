@@ -1,4 +1,4 @@
-package ru.practicum.ewm.dto.api;
+package ru.practicum.ewm.closed.dto.api;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AccessLevel;
@@ -6,8 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.ewm.dto.api.EventState;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -15,30 +15,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class EventShort {
+public class ParticipationRequest {
 
     Long id;
 
-    @NotBlank
-    String annotation;
+    Long requester;
 
-    @NotBlank
-    String title;
+    Long event;
 
-    Long views;
-
-    Long confirmedRequests;
+    EventState status;
 
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime eventDate;
-
-    @NotNull
-    Boolean paid;
-
-    @NotNull
-    Category category;
-
-    @NotNull
-    UserShort initiator;
+    LocalDateTime created;
 }

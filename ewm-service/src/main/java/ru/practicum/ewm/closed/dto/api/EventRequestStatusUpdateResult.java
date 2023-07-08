@@ -1,4 +1,4 @@
-package ru.practicum.ewm.dto.api;
+package ru.practicum.ewm.closed.dto.api;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -6,18 +6,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserShort {
+public class EventRequestStatusUpdateResult {
 
-    @NotNull
-    Long id;
+    List<ParticipationRequest> confirmedRequests;
 
-    @NotBlank
-    String name;
+    List<ParticipationRequest> rejectedRequests;
+
 }

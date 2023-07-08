@@ -1,4 +1,4 @@
-package ru.practicum.ewm.dto.api;
+package ru.practicum.ewm.admin.dto.api;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -7,17 +7,14 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserShort {
-
-    @NotNull
-    Long id;
+public class NewCategory {
 
     @NotBlank
     String name;
+
 }

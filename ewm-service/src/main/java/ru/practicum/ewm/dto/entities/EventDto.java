@@ -64,13 +64,13 @@ public class EventDto {
     String description;
 
     @Column(name = "participant_limit")
-    Integer participantLimit;
+    Integer participantLimit = 0;
 
     @Column(name = "published_on")
     LocalDateTime publishedOn;
 
     @Column(name = "request_moderation")
-    Boolean requestModeration;
+    Boolean requestModeration = true;
 
     EventState state;
 

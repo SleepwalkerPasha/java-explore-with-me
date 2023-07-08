@@ -8,6 +8,8 @@ import ru.practicum.ewm.dto.entities.EventDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public interface EventRepository extends JpaRepository<EventDto, Long> {
 
@@ -32,4 +34,12 @@ public interface EventRepository extends JpaRepository<EventDto, Long> {
     Page<EventDto> getEventDtoByParams(String text, List<Long> categoriesId,
                                                 boolean paid, LocalDateTime rangeStart,
                                                 LocalDateTime rangeEnd, Pageable pageable);
+
+    @Query("select e from EventDto e where e.id in ?1")
+    List<EventDto> getEventDtoByEventIds(Set<Long> eventIds);
+
+    Page<EventDto> getEventDtoByInitiator_Id(long initiatorId, Pageable pageable);
+
+    @Query("select e from EventDto e where e.initiator.id = ?1 and e.id = ?2")
+    Optional<EventDto> findEventDtoByInitiator_IdAndId(long initiatorId, long id);
 }

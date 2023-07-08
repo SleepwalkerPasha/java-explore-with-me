@@ -1,4 +1,4 @@
-package ru.practicum.ewm.dto.api;
+package ru.practicum.ewm.closed.dto.api;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AccessLevel;
@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.validator.constraints.Length;
+import ru.practicum.ewm.dto.api.Location;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -15,45 +17,33 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Event {
-
-    Long id;
+public class NewEvent {
 
     @NotBlank
+    @Length(min = 20, max = 2000)
     String annotation;
 
+    @NotNull
+    Long category;
+
     @NotBlank
-    String title;
-
-    Long views;
-
-    Long confirmedRequests;
+    @Length(min = 20, max = 7000)
+    String description;
 
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
 
     @NotNull
-    Boolean paid;
-
-    @NotNull
-    Category category;
-
-    @NotNull
-    UserShort initiator;
-
-    @NotNull
     Location location;
 
-    LocalDateTime createdOn;
+    Boolean paid = false;
 
-    String description;
+    Integer participantLimit = 0;
 
-    Integer participantLimit;
+    Boolean requestModeration = true;
 
-    LocalDateTime publishedOn;
-
-    Boolean requestModeration;
-
-    EventState state;
+    @NotBlank
+    @Length(min = 3, max = 120)
+    String title;
 }
