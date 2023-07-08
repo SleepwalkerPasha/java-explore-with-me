@@ -12,9 +12,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Location {
 
-    Long id;
-
     Double lat;
 
     Double lon;
+    
 }

@@ -46,9 +46,11 @@ public class EventDto {
     @ManyToOne(targetEntity = CategoryDto.class, fetch = FetchType.LAZY)
     UserDto initiator;
 
-    @JoinColumn(name = "location_id")
-    @ManyToOne(targetEntity = LocationDto.class, fetch = FetchType.LAZY)
-    LocationDto location;
+    @Column(name = "location_lon")
+    Double locationLon;
+
+    @Column(name = "location_lat")
+    Double locationLat;
 
     @ManyToMany(mappedBy = "events", fetch = FetchType.LAZY)
     List<CompilationDto> compilations;

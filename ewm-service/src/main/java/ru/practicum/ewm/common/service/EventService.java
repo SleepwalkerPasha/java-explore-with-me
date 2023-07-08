@@ -1,6 +1,7 @@
 package ru.practicum.ewm.common.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EventService {
 
     private final static String EVENT_DATE = "EVENT_DATE";
@@ -51,6 +53,7 @@ public class EventService {
         } else {
             eventDtoPage = eventRepository.getEventDtoByParams(text, categories, paid, rangeStart, rangeEnd, pageable);
         }
+        log.info("public: get events by params");
         return eventDtoPage.stream().map(EventMapper::toEventShort).collect(Collectors.toList());
     }
 
@@ -59,6 +62,7 @@ public class EventService {
         if (byId.isEmpty()) {
             throw new NotFoundException(String.format("Event with id=%d was not found", id));
         }
+        log.info("public: get event by id {}", id);
         return EventMapper.toEvent(byId.get());
     }
 }

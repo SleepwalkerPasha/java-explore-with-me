@@ -1,6 +1,7 @@
 package ru.practicum.ewm.closed.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.repository.UserRepository;
 import ru.practicum.ewm.closed.repository.RequestRepository;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UsersRequestService {
 
     private final RequestRepository requestRepository;
@@ -31,6 +33,7 @@ public class UsersRequestService {
 
     public List<ParticipationRequest> getParticipationRequestsByUserId(long userId) {
         checkForUser(userId);
+        log.info("private: get requests userID {}", userId);
         return requestRepository.findParticipationRequestDtosByRequester_Id(userId)
                 .stream()
                 .map(ParticipationRequestMapper::toParticipationRequest)
@@ -59,7 +62,7 @@ public class UsersRequestService {
         participationRequestDto.setEvent(eventDto);
         participationRequestDto.setStatus(EventState.PENDING);
         participationRequestDto.setCreated(LocalDateTime.now());
-
+        log.info("private: create request userId {} eventId {}", userId, eventId);
         return ParticipationRequestMapper.toParticipationRequest(requestRepository.save(participationRequestDto));
     }
 
@@ -71,6 +74,7 @@ public class UsersRequestService {
         }
         ParticipationRequestDto participationRequestDto = requestDtoOptional.get();
         participationRequestDto.setStatus(EventState.CANCELED);
+        log.info("private: cancel request userId {} requestId {}", userId, requestId);
         return ParticipationRequestMapper.toParticipationRequest(requestRepository.save(participationRequestDto));
     }
 

@@ -1,7 +1,9 @@
 package ru.practicum.ewm.closed.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.repository.UserRepository;
 import ru.practicum.ewm.closed.repository.RequestRepository;
 import ru.practicum.ewm.dto.api.Event;
@@ -12,12 +14,11 @@ import ru.practicum.ewm.dto.api.EventState;
 import ru.practicum.ewm.closed.dto.api.NewEvent;
 import ru.practicum.ewm.closed.dto.api.ParticipationRequest;
 import ru.practicum.ewm.closed.dto.api.StateAction;
-import ru.practicum.ewm.closed.dto.api.UpdateEventUserRequest;
+import ru.practicum.ewm.closed.dto.api.UpdateEventRequest;
 import ru.practicum.ewm.dto.entities.CategoryDto;
 import ru.practicum.ewm.dto.entities.EventDto;
 import ru.practicum.ewm.dto.entities.ParticipationRequestDto;
 import ru.practicum.ewm.dto.entities.UserDto;
-import ru.practicum.ewm.dto.mapper.CategoryMapper;
 import ru.practicum.ewm.dto.mapper.EventMapper;
 import ru.practicum.ewm.dto.mapper.ParticipationRequestMapper;
 import ru.practicum.ewm.exception.ConflictException;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UsersEventService {
 
     private final EventRepository eventRepository;
@@ -46,85 +48,79 @@ public class UsersEventService {
 
     public List<EventShort> getUsersAddedEvents(long userId, int from, int size) {
         checkForUser(userId);
+        log.info("private: get user id {} added events", userId);
         return eventRepository.getEventDtoByInitiator_Id(userId, PageRequester.of(from, size))
                 .stream()
                 .map(EventMapper::toEventShort)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public Event addNewEvent(long userId, NewEvent newEvent) {
         UserDto initiatorDto = checkForUser(userId);
         EventDto eventDto = EventMapper.toEventDto(newEvent);
         Long catId = newEvent.getCategory();
-        Optional<CategoryDto> categoryDtoOptional = categoryRepository.findById(newEvent.getCategory());
-        if (categoryDtoOptional.isEmpty()) {
-            throw new NotFoundException(String.format("Category with id=%d was not found", catId));
-        }
-        eventDto.setCategory(categoryDtoOptional.get());
+        eventDto.setCategory(checkForCategory(catId));
         eventDto.setInitiator(initiatorDto);
         eventDto.setCreatedOn(LocalDateTime.now());
         eventDto.setState(EventState.PENDING);
         eventDto.setConfirmedRequests(0L);
         eventDto.setViews(0L);
+        log.info("private: add new event user id {}", userId);
         return EventMapper.toEvent(eventRepository.save(eventDto));
     }
-
-    private UserDto checkForUser(long userId) {
-        Optional<UserDto> userDtoOptional = userRepository.findById(userId);
-        if (userDtoOptional.isEmpty()) {
-            throw new NotFoundException(String.format("User with id=%d was not found", userId));
-        }
-        return userDtoOptional.get();
-    }
-
-
     public Event getUsersEventById(Long userId, Long eventId) {
         checkForUser(userId);
         Optional<EventDto> eventDtoByInitiatorIdAndId = eventRepository.findEventDtoByInitiator_IdAndId(userId, eventId);
         if (eventDtoByInitiatorIdAndId.isEmpty()) {
             throw new NotFoundException(String.format("Event with id=%d was not found", eventId));
         }
+        log.info("private: get event user id {} event id {}", userId, eventId);
         return EventMapper.toEvent(eventDtoByInitiatorIdAndId.get());
     }
 
-
-    public Event updateEventInfo(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
+    @Transactional
+    public Event updateEventInfo(Long userId, Long eventId, UpdateEventRequest updateEventRequest) {
         UserDto userDto = checkForUser(userId);
         Event usersEventById = getUsersEventById(userId, eventId);
         if (usersEventById.getState().equals(EventState.PUBLISHED) ||
-                usersEventById.getEventDate().isAfter(LocalDateTime.now().plusHours(2L))) {
+                updateEventRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(2L))) {
             throw new ConflictException("Only pending or canceled events can be changed");
         }
-        EventDto eventDto = EventMapper.toEventDto(updateEventUserRequest);
+        EventDto eventDto = EventMapper.toEventDto(updateEventRequest);
 
-        Optional<StateAction> from = StateAction.from(updateEventUserRequest.getStateAction());
+        Optional<StateAction> from = StateAction.from(updateEventRequest.getStateAction());
         if (from.isEmpty()) {
-            throw new ConflictException(String.format("invalid state %s", updateEventUserRequest.getStateAction()));
+            throw new ConflictException(String.format("invalid state %s", updateEventRequest.getStateAction()));
         }
         if (from.get().equals(StateAction.CANCEL_REVIEW)) {
             eventDto.setState(EventState.CANCELED);
         } else {
             eventDto.setState(EventState.PUBLISHED);
+            eventDto.setPublishedOn(LocalDateTime.now());
         }
-
         eventDto.setId(eventId);
-        eventDto.setCategory(CategoryMapper.toCategoryDto(usersEventById.getCategory()));
+        Long catId = updateEventRequest.getCategory();
+        eventDto.setCategory(checkForCategory(catId));
         eventDto.setInitiator(userDto);
         eventDto.setCreatedOn(usersEventById.getCreatedOn());
         eventDto.setConfirmedRequests(usersEventById.getConfirmedRequests());
         eventDto.setViews(usersEventById.getViews());
+        log.info("private: update event user id {} event id {}", userId, eventId);
         return EventMapper.toEvent(eventRepository.save(eventDto));
     }
 
     public List<ParticipationRequest> getRequestToUsersEvent(Long userId, Long eventId) {
         checkForUser(userId);
         getUsersEventById(userId, eventId);
+        log.info("private: get requests user id {} event id {}", userId, eventId);
         return requestRepository.findParticipationRequestDtoByEventIdAndInitiatorId(eventId, userId)
                 .stream()
                 .map(ParticipationRequestMapper::toParticipationRequest)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public EventRequestStatusUpdateResult updateRequestsToUsersEvent(Long userId,
                                                                      Long eventId,
                                                                      EventRequestStatusUpdateRequest updateRequest) {
@@ -132,7 +128,7 @@ public class UsersEventService {
         Event usersEventById = getUsersEventById(userId, eventId);
         List<ParticipationRequestDto> requests = requestRepository
                 .findParticipationRequestDtosInRequestIds(updateRequest.getRequestIds());
-
+        log.info("private: update requests userId {} eventId {}", userId, eventId);
         if (usersEventById.getParticipantLimit().equals(0) || usersEventById.getRequestModeration().equals(false)) {
             return new EventRequestStatusUpdateResult(requests
                     .stream()
@@ -168,4 +164,21 @@ public class UsersEventService {
                 .map(ParticipationRequestMapper::toParticipationRequest)
                 .collect(Collectors.toList()));
     }
+
+    private CategoryDto checkForCategory(long catId) {
+        Optional<CategoryDto> categoryDtoOptional = categoryRepository.findById(catId);
+        if (categoryDtoOptional.isEmpty()) {
+            throw new NotFoundException(String.format("Category with id=%d was not found", catId));
+        }
+        return categoryDtoOptional.get();
+    }
+
+    private UserDto checkForUser(long userId) {
+        Optional<UserDto> userDtoOptional = userRepository.findById(userId);
+        if (userDtoOptional.isEmpty()) {
+            throw new NotFoundException(String.format("User with id=%d was not found", userId));
+        }
+        return userDtoOptional.get();
+    }
+
 }

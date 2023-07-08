@@ -1,9 +1,10 @@
 package ru.practicum.ewm.dto.mapper;
 
+import ru.practicum.ewm.closed.dto.api.NewEvent;
+import ru.practicum.ewm.closed.dto.api.UpdateEventRequest;
 import ru.practicum.ewm.dto.api.Event;
 import ru.practicum.ewm.dto.api.EventShort;
-import ru.practicum.ewm.closed.dto.api.NewEvent;
-import ru.practicum.ewm.closed.dto.api.UpdateEventUserRequest;
+import ru.practicum.ewm.dto.api.Location;
 import ru.practicum.ewm.dto.entities.EventDto;
 
 public class EventMapper {
@@ -69,9 +70,14 @@ public class EventMapper {
         if (eventDto.getInitiator() != null) {
             event.setInitiator(UserMapper.toUserShort(eventDto.getInitiator()));
         }
-        if (eventDto.getLocation() != null) {
-            event.setLocation(LocationMapper.toLocation(eventDto.getLocation()));
+        Location location = new Location();
+        if (eventDto.getLocationLat() != null) {
+            location.setLat(eventDto.getLocationLat());
         }
+        if (eventDto.getLocationLon() != null) {
+            location.setLon(eventDto.getLocationLon());
+        }
+        event.setLocation(location);
         if (eventDto.getCreatedOn() != null) {
             event.setCreatedOn(eventDto.getCreatedOn());
         }
@@ -150,36 +156,46 @@ public class EventMapper {
             eventDto.setRequestModeration(newEvent.getRequestModeration());
         }
         if (newEvent.getLocation() != null) {
-            eventDto.setLocation(LocationMapper.toLocationDto(newEvent.getLocation()));
+            if (newEvent.getLocation().getLat() != null) {
+                eventDto.setLocationLat(newEvent.getLocation().getLat());
+            }
+            if (newEvent.getLocation().getLon() != null) {
+                eventDto.setLocationLon(newEvent.getLocation().getLon());
+            }
         }
         return eventDto;
     }
 
-    public static EventDto toEventDto(UpdateEventUserRequest updateEventUserRequest) {
+    public static EventDto toEventDto(UpdateEventRequest updateEventRequest) {
         EventDto eventDto = new EventDto();
-        if (updateEventUserRequest.getAnnotation() != null) {
-            eventDto.setAnnotation(updateEventUserRequest.getAnnotation());
+        if (updateEventRequest.getAnnotation() != null) {
+            eventDto.setAnnotation(updateEventRequest.getAnnotation());
         }
-        if (updateEventUserRequest.getTitle() != null) {
-            eventDto.setTitle(updateEventUserRequest.getTitle());
+        if (updateEventRequest.getTitle() != null) {
+            eventDto.setTitle(updateEventRequest.getTitle());
         }
-        if (updateEventUserRequest.getPaid() != null) {
-            eventDto.setPaid(updateEventUserRequest.getPaid());
+        if (updateEventRequest.getPaid() != null) {
+            eventDto.setPaid(updateEventRequest.getPaid());
         }
-        if (updateEventUserRequest.getParticipantLimit() != null) {
-            eventDto.setParticipantLimit(updateEventUserRequest.getParticipantLimit());
+        if (updateEventRequest.getParticipantLimit() != null) {
+            eventDto.setParticipantLimit(updateEventRequest.getParticipantLimit());
         }
-        if (updateEventUserRequest.getEventDate() != null) {
-            eventDto.setEventDate(updateEventUserRequest.getEventDate());
+        if (updateEventRequest.getEventDate() != null) {
+            eventDto.setEventDate(updateEventRequest.getEventDate());
         }
-        if (updateEventUserRequest.getDescription() != null) {
-            eventDto.setDescription(updateEventUserRequest.getDescription());
+        if (updateEventRequest.getDescription() != null) {
+            eventDto.setDescription(updateEventRequest.getDescription());
         }
-        if (updateEventUserRequest.getRequestModeration() != null) {
-            eventDto.setRequestModeration(updateEventUserRequest.getRequestModeration());
+        if (updateEventRequest.getRequestModeration() != null) {
+            eventDto.setRequestModeration(updateEventRequest.getRequestModeration());
         }
-        if (updateEventUserRequest.getLocation() != null) {
-            eventDto.setLocation(LocationMapper.toLocationDto(updateEventUserRequest.getLocation()));
+        if (updateEventRequest.getLocation() != null) {
+            if (updateEventRequest.getLocation().getLat() != null) {
+                eventDto.setLocationLat(updateEventRequest.getLocation().getLat());
+            }
+            if (updateEventRequest.getLocation().getLon() != null) {
+                eventDto.setLocationLon(updateEventRequest.getLocation().getLon());
+            }
         }
         return eventDto;
     }

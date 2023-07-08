@@ -1,6 +1,7 @@
 package ru.practicum.ewm.admin.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.repository.UserRepository;
@@ -17,12 +18,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AdminsUserService {
 
     private final UserRepository userRepository;
 
     public List<UserFull> getUsersInUsersIds(List<Long> ids, int from, int size) {
         Pageable pageable = PageRequester.of(from, size);
+        log.info("admin: get users");
         return userRepository.findUserDtosByIds(ids, pageable)
                 .stream()
                 .map(UserMapper::toUserFull)
@@ -33,6 +36,7 @@ public class AdminsUserService {
         UserDto userDto = new UserDto();
         userDto.setName(userRequest.getName());
         userDto.setEmail(userRequest.getEmail());
+        log.info("admin: create user");
         return UserMapper.toUserFull(userRepository.save(userDto));
     }
 
@@ -42,5 +46,6 @@ public class AdminsUserService {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
         userRepository.deleteById(userId);
+        log.info("admin: delete user {}", userId);
     }
 }

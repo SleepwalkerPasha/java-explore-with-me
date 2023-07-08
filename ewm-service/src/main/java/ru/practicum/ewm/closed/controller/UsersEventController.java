@@ -16,7 +16,7 @@ import ru.practicum.ewm.closed.dto.api.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.dto.api.EventShort;
 import ru.practicum.ewm.closed.dto.api.NewEvent;
 import ru.practicum.ewm.closed.dto.api.ParticipationRequest;
-import ru.practicum.ewm.closed.dto.api.UpdateEventUserRequest;
+import ru.practicum.ewm.closed.dto.api.UpdateEventRequest;
 import ru.practicum.ewm.exception.ForbiddenException;
 
 import javax.validation.Valid;
@@ -53,8 +53,8 @@ public class UsersEventController {
 
     @PatchMapping("/{userId}/events/{eventId}")
     public Event updateEventInfo(@PathVariable Long eventId, @PathVariable Long userId,
-                                 @RequestBody UpdateEventUserRequest updateEventUserRequest) {
-        return usersEventService.updateEventInfo(userId, eventId, updateEventUserRequest);
+                                 @RequestBody @Valid UpdateEventRequest updateEventRequest) {
+        return usersEventService.updateEventInfo(userId, eventId, updateEventRequest);
     }
 
     @GetMapping("/{userId}/events/{eventId}/requests")

@@ -1,7 +1,9 @@
 package ru.practicum.ewm.admin.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.api.Compilation;
 import ru.practicum.ewm.admin.dto.api.NewCompilation;
 import ru.practicum.ewm.admin.dto.api.UpdateCompilationRequest;
@@ -18,12 +20,14 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AdminsCompilationService {
 
     private final CompilationRepository compilationRepository;
 
     private final EventRepository eventRepository;
 
+    @Transactional
     public Compilation createCompilation(NewCompilation newCompilation) {
         CompilationDto compilationDto = new CompilationDto();
         compilationDto.setPinned(newCompilation.getPinned());
@@ -31,15 +35,17 @@ public class AdminsCompilationService {
 
         List<EventDto> compilationEventDtos = eventRepository.getEventDtoByEventIds(newCompilation.getEvents());
         compilationDto.setEvents(compilationEventDtos);
-
+        log.info("create compilation with title {}", newCompilation.getTitle());
         return CompilationMapper.toCompilation(compilationRepository.save(compilationDto));
     }
 
     public void deleteCompilation(long compId) {
         checkForCompilation(compId);
         compilationRepository.deleteById(compId);
+        log.info("delete compilation with id {}", compId);
     }
 
+    @Transactional
     public Compilation updateCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest) {
         CompilationDto compilationDto = checkForCompilation(compId);
 
@@ -54,7 +60,7 @@ public class AdminsCompilationService {
         if (updateCompilationRequest.getTitle() != null) {
             compilationDto.setTitle(updateCompilationRequest.getTitle());
         }
-
+        log.info("update compilation with id {}", compId);
         return CompilationMapper.toCompilation(compilationRepository.save(compilationDto));
     }
 

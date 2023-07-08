@@ -35,6 +35,17 @@ public interface EventRepository extends JpaRepository<EventDto, Long> {
                                                 boolean paid, LocalDateTime rangeStart,
                                                 LocalDateTime rangeEnd, Pageable pageable);
 
+    @Query("select e from EventDto e " +
+            "where e.initiator.id in ?1 " +
+            "and lower(e.state) in ?2 " +
+            "and e.category.id in ?3 " +
+            "and e.eventDate between ?4 and ?5")
+    Page<EventDto> getEventDtoByParamsAdmin(List<Long> usersIds,
+                                            List<String> states,
+                                            List<Long> categoriesIds,
+                                            LocalDateTime rangeStart,
+                                            LocalDateTime rangeEnd, Pageable pageable);
+
     @Query("select e from EventDto e where e.id in ?1")
     List<EventDto> getEventDtoByEventIds(Set<Long> eventIds);
 
