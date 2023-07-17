@@ -166,28 +166,42 @@ public class EventMapper {
         return eventDto;
     }
 
-    public static EventDto toEventDto(UpdateEventRequest updateEventRequest) {
+    public static EventDto toEventDto(UpdateEventRequest updateEventRequest, EventDto oldEvent) {
         EventDto eventDto = new EventDto();
         if (updateEventRequest.getAnnotation() != null) {
             eventDto.setAnnotation(updateEventRequest.getAnnotation());
+        } else {
+            eventDto.setAnnotation(oldEvent.getAnnotation());
         }
         if (updateEventRequest.getTitle() != null) {
             eventDto.setTitle(updateEventRequest.getTitle());
+        } else {
+            eventDto.setTitle(oldEvent.getTitle());
         }
         if (updateEventRequest.getPaid() != null) {
             eventDto.setPaid(updateEventRequest.getPaid());
+        } else {
+            eventDto.setPaid(oldEvent.getPaid());
         }
         if (updateEventRequest.getParticipantLimit() != null) {
             eventDto.setParticipantLimit(updateEventRequest.getParticipantLimit());
-        }
-        if (updateEventRequest.getEventDate() != null) {
-            eventDto.setEventDate(updateEventRequest.getEventDate());
+        } else {
+            eventDto.setParticipantLimit(oldEvent.getParticipantLimit());
         }
         if (updateEventRequest.getDescription() != null) {
             eventDto.setDescription(updateEventRequest.getDescription());
+        } else {
+            eventDto.setDescription(oldEvent.getDescription());
+        }
+        if (updateEventRequest.getEventDate() != null) {
+            eventDto.setEventDate(updateEventRequest.getEventDate());
+        } else {
+            eventDto.setEventDate(oldEvent.getEventDate());
         }
         if (updateEventRequest.getRequestModeration() != null) {
             eventDto.setRequestModeration(updateEventRequest.getRequestModeration());
+        } else {
+            eventDto.setRequestModeration(oldEvent.getRequestModeration());
         }
         if (updateEventRequest.getLocation() != null) {
             if (updateEventRequest.getLocation().getLat() != null) {
@@ -196,6 +210,9 @@ public class EventMapper {
             if (updateEventRequest.getLocation().getLon() != null) {
                 eventDto.setLocationLon(updateEventRequest.getLocation().getLon());
             }
+        } else {
+            eventDto.setLocationLat(oldEvent.getLocationLat());
+            eventDto.setLocationLon(oldEvent.getLocationLon());
         }
         return eventDto;
     }

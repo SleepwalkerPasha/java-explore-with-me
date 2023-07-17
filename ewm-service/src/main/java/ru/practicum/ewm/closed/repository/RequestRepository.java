@@ -11,13 +11,12 @@ public interface RequestRepository extends JpaRepository<ParticipationRequestDto
 
     List<ParticipationRequestDto> findParticipationRequestDtosByRequester_Id(long requesterId);
 
-    List<ParticipationRequestDto> findParticipationRequestDtosByEvent_Id(long eventId);
-
+    @Query("select pr from ParticipationRequestDto pr where pr.event.id = ?1 and pr.requester.id = ?2")
     Optional<ParticipationRequestDto> findParticipationRequestDtoByEvent_IdAndRequester_Id(long eventId, long requesterId);
 
     @Query("select pr from ParticipationRequestDto pr where pr.event.id = ?1 and pr.event.initiator.id = ?2")
     List<ParticipationRequestDto> findParticipationRequestDtoByEventIdAndInitiatorId(long eventId, long initiatorId);
 
-    @Query("select pr from ParticipationRequestDto pr where pr.id in ?1")
+    @Query("select pr from ParticipationRequestDto pr where pr.id in ?1 and pr.status = 'PENDING'")
     List<ParticipationRequestDto> findParticipationRequestDtosInRequestIds(List<Long> requestsIds);
 }

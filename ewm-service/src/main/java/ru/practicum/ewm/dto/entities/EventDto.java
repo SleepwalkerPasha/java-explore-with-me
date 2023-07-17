@@ -31,19 +31,19 @@ public class EventDto {
     Long views;
 
     @Column(name = "confirmed_requests")
-    Long confirmedRequests;
+    Long confirmedRequests = 0L;
 
     @Column(name = "event_date")
     LocalDateTime eventDate;
 
-    Boolean paid;
+    Boolean paid = false;
 
     @JoinColumn(name = "category_id")
     @ManyToOne(targetEntity = CategoryDto.class, fetch = FetchType.LAZY)
     CategoryDto category;
 
     @JoinColumn(name = "initiator_id")
-    @ManyToOne(targetEntity = CategoryDto.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = UserDto.class, fetch = FetchType.LAZY)
     UserDto initiator;
 
     @Column(name = "location_lon")
@@ -69,6 +69,7 @@ public class EventDto {
     @Column(name = "request_moderation")
     Boolean requestModeration = true;
 
+    @Enumerated(EnumType.STRING)
     EventState state;
 
 }

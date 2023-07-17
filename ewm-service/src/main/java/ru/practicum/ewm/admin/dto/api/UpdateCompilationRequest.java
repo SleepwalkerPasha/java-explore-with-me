@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import javax.validation.constraints.Size;
 import java.util.Set;
 
 @Data
@@ -14,6 +15,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateCompilationRequest {
 
+    @Size(min = 1, max = 50)
     String title;
 
     Boolean pinned;

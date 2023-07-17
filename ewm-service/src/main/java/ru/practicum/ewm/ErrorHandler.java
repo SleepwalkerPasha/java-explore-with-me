@@ -9,6 +9,7 @@ import ru.practicum.ewm.dto.api.ApiError;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.ForbiddenException;
 import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.exception.StartBeforeEndException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -46,6 +47,17 @@ public class ErrorHandler {
         return new ApiError(e.getMessage(),
                 HttpStatus.FORBIDDEN.getReasonPhrase(),
                 HttpStatus.FORBIDDEN.name(),
+                LocalDateTime.now(),
+                List.of(e.toString()));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleStartBeforeEndException(final StartBeforeEndException e) {
+        log.error(e.getMessage());
+        return new ApiError(e.getMessage(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                HttpStatus.BAD_REQUEST.name(),
                 LocalDateTime.now(),
                 List.of(e.toString()));
     }

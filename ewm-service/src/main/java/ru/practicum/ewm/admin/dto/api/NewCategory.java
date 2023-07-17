@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Data
 @NoArgsConstructor
@@ -15,6 +16,7 @@ import javax.validation.constraints.NotBlank;
 public class NewCategory {
 
     @NotBlank
+    @Size(max = 50)
     String name;
 
 }

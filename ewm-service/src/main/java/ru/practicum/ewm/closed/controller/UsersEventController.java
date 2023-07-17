@@ -1,6 +1,7 @@
 package ru.practicum.ewm.closed.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.ewm.closed.service.UsersEventService;
 import ru.practicum.ewm.dto.api.Event;
@@ -32,12 +34,13 @@ public class UsersEventController {
 
     @GetMapping(path = "/{userId}/events")
     public List<EventShort> getUsersAddedEvents(@PathVariable long userId,
-                                                @RequestParam(name = "from", defaultValue = "0") int from,
-                                                @RequestParam(name = "size", defaultValue = "10") int size) {
+                                                @RequestParam(name = "from", defaultValue = "0", required = false) int from,
+                                                @RequestParam(name = "size", defaultValue = "10", required = false) int size) {
         return usersEventService.getUsersAddedEvents(userId, from, size);
     }
 
     @PostMapping(path = "/{userId}/events")
+    @ResponseStatus(HttpStatus.CREATED)
     public Event addNewEvent(@PathVariable long userId, @RequestBody @Valid NewEvent newEvent) {
         if (newEvent.getEventDate().isBefore(LocalDateTime.now().plusHours(2L))) {
             throw new ForbiddenException(String.format("Field: eventDate. Error: должно содержать дату, которая еще не наступила. " +
@@ -58,12 +61,14 @@ public class UsersEventController {
     }
 
     @GetMapping("/{userId}/events/{eventId}/requests")
-    public List<ParticipationRequest> getRequestToUsersEvent(@PathVariable Long eventId, @PathVariable Long userId) {
+    public List<ParticipationRequest> getRequestToUsersEvent(@PathVariable Long eventId,
+                                                             @PathVariable Long userId) {
         return usersEventService.getRequestToUsersEvent(userId, eventId);
     }
 
     @PatchMapping("/{userId}/events/{eventId}/requests")
-    public EventRequestStatusUpdateResult updateRequestsToUsersEvent(@PathVariable Long eventId, @PathVariable Long userId,
+    public EventRequestStatusUpdateResult updateRequestsToUsersEvent(@PathVariable Long eventId,
+                                                                     @PathVariable Long userId,
                                                                      @RequestBody EventRequestStatusUpdateRequest updateRequest) {
         return usersEventService.updateRequestsToUsersEvent(userId, eventId, updateRequest);
     }

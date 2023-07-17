@@ -4,17 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.repository.UserRepository;
-import ru.practicum.ewm.closed.repository.RequestRepository;
-import ru.practicum.ewm.dto.api.Event;
 import ru.practicum.ewm.closed.dto.api.EventRequestStatusUpdateRequest;
 import ru.practicum.ewm.closed.dto.api.EventRequestStatusUpdateResult;
-import ru.practicum.ewm.dto.api.EventShort;
-import ru.practicum.ewm.dto.api.EventState;
 import ru.practicum.ewm.closed.dto.api.NewEvent;
 import ru.practicum.ewm.closed.dto.api.ParticipationRequest;
+import ru.practicum.ewm.closed.dto.api.RequestState;
 import ru.practicum.ewm.closed.dto.api.StateAction;
 import ru.practicum.ewm.closed.dto.api.UpdateEventRequest;
+import ru.practicum.ewm.closed.repository.RequestRepository;
+import ru.practicum.ewm.dto.api.Event;
+import ru.practicum.ewm.dto.api.EventShort;
+import ru.practicum.ewm.dto.api.EventState;
 import ru.practicum.ewm.dto.entities.CategoryDto;
 import ru.practicum.ewm.dto.entities.EventDto;
 import ru.practicum.ewm.dto.entities.ParticipationRequestDto;
@@ -26,7 +26,9 @@ import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.pagination.PageRequester;
 import ru.practicum.ewm.repository.CategoryRepository;
 import ru.practicum.ewm.repository.EventRepository;
+import ru.practicum.ewm.repository.UserRepository;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +51,7 @@ public class UsersEventService {
     public List<EventShort> getUsersAddedEvents(long userId, int from, int size) {
         checkForUser(userId);
         log.info("private: get user id {} added events", userId);
-        return eventRepository.getEventDtoByInitiator_Id(userId, PageRequester.of(from, size))
+        return eventRepository.getEventDtoByInitiatorId(userId, PageRequester.of(from, size))
                 .stream()
                 .map(EventMapper::toEventShort)
                 .collect(Collectors.toList());
@@ -69,6 +71,7 @@ public class UsersEventService {
         log.info("private: add new event user id {}", userId);
         return EventMapper.toEvent(eventRepository.save(eventDto));
     }
+
     public Event getUsersEventById(Long userId, Long eventId) {
         checkForUser(userId);
         Optional<EventDto> eventDtoByInitiatorIdAndId = eventRepository.findEventDtoByInitiator_IdAndId(userId, eventId);
@@ -82,34 +85,47 @@ public class UsersEventService {
     @Transactional
     public Event updateEventInfo(Long userId, Long eventId, UpdateEventRequest updateEventRequest) {
         UserDto userDto = checkForUser(userId);
-        Event usersEventById = getUsersEventById(userId, eventId);
-        if (usersEventById.getState().equals(EventState.PUBLISHED) ||
-                updateEventRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(2L))) {
+
+        Optional<EventDto> eventDtoByInitiatorIdAndId = eventRepository.findEventDtoByInitiator_IdAndId(userId, eventId);
+        if (eventDtoByInitiatorIdAndId.isEmpty()) {
+            throw new NotFoundException(String.format("Event with id=%d was not found", eventId));
+        }
+        EventDto oldEvent = eventDtoByInitiatorIdAndId.get();
+        if (oldEvent.getState().equals(EventState.PUBLISHED) ||
+                Duration.between(oldEvent.getEventDate(), LocalDateTime.now()).abs().toMinutes() < 120) {
             throw new ConflictException("Only pending or canceled events can be changed");
         }
-        EventDto eventDto = EventMapper.toEventDto(updateEventRequest);
 
-        Optional<StateAction> from = StateAction.from(updateEventRequest.getStateAction());
-        if (from.isEmpty()) {
-            throw new ConflictException(String.format("invalid state %s", updateEventRequest.getStateAction()));
-        }
-        if (from.get().equals(StateAction.CANCEL_REVIEW)) {
-            eventDto.setState(EventState.CANCELED);
-        } else {
-            eventDto.setState(EventState.PUBLISHED);
-            eventDto.setPublishedOn(LocalDateTime.now());
+        EventDto eventDto = EventMapper.toEventDto(updateEventRequest, oldEvent);
+        String stateAction = updateEventRequest.getStateAction();
+        if (stateAction != null) {
+            Optional<StateAction> from = StateAction.from(stateAction);
+            if (from.isEmpty()) {
+                throw new ConflictException(String.format("invalid state %s", updateEventRequest.getStateAction()));
+            }
+            if (from.get().equals(StateAction.CANCEL_REVIEW)) {
+                eventDto.setState(EventState.CANCELED);
+            } else {
+                eventDto.setState(EventState.PENDING);
+                eventDto.setPublishedOn(LocalDateTime.now());
+            }
         }
         eventDto.setId(eventId);
         Long catId = updateEventRequest.getCategory();
-        eventDto.setCategory(checkForCategory(catId));
+        if (catId != null) {
+            eventDto.setCategory(checkForCategory(catId));
+        } else {
+            eventDto.setCategory(oldEvent.getCategory());
+        }
         eventDto.setInitiator(userDto);
-        eventDto.setCreatedOn(usersEventById.getCreatedOn());
-        eventDto.setConfirmedRequests(usersEventById.getConfirmedRequests());
-        eventDto.setViews(usersEventById.getViews());
+        eventDto.setCreatedOn(oldEvent.getCreatedOn());
+        eventDto.setConfirmedRequests(oldEvent.getConfirmedRequests());
+        eventDto.setViews(oldEvent.getViews());
         log.info("private: update event user id {} event id {}", userId, eventId);
         return EventMapper.toEvent(eventRepository.save(eventDto));
     }
 
+    @Transactional
     public List<ParticipationRequest> getRequestToUsersEvent(Long userId, Long eventId) {
         checkForUser(userId);
         getUsersEventById(userId, eventId);
@@ -129,40 +145,54 @@ public class UsersEventService {
         List<ParticipationRequestDto> requests = requestRepository
                 .findParticipationRequestDtosInRequestIds(updateRequest.getRequestIds());
         log.info("private: update requests userId {} eventId {}", userId, eventId);
-        if (usersEventById.getParticipantLimit().equals(0) || usersEventById.getRequestModeration().equals(false)) {
+        if (usersEventById.getParticipantLimit() == 0 || usersEventById.getRequestModeration().equals(false)) {
             return new EventRequestStatusUpdateResult(requests
                     .stream()
                     .map(ParticipationRequestMapper::toParticipationRequest)
                     .collect(Collectors.toList()),
                     new ArrayList<>());
         }
-
-        if (usersEventById.getParticipantLimit() >= requests.size()) {
+        Integer participantLimit = usersEventById.getParticipantLimit();
+        if (usersEventById.getConfirmedRequests().equals(participantLimit.longValue())) {
             throw new ConflictException("The participant limit has been reached");
         }
-        if (requests.stream().noneMatch(x -> x.getStatus().equals(EventState.PENDING))) {
+        if (requests.stream().noneMatch(x -> x.getStatus().equals(RequestState.PENDING))) {
             throw new ConflictException("Only pending requests can be updated");
         }
         List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
+        List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
         for (ParticipationRequestDto request : requests) {
-            if (!usersEventById.getParticipantLimit().equals(confirmedRequests.size())) {
-                Optional<EventState> from = EventState.from(updateRequest.getStatus());
+            if (!participantLimit.equals(confirmedRequests.size())) {
+                Optional<RequestState> from = RequestState.from(updateRequest.getStatus());
                 if (from.isEmpty()) {
                     throw new ConflictException(String.format("invalid state %s", updateRequest.getStatus()));
                 }
-                request.setStatus(from.get());
-                confirmedRequests.add(request);
+                if (from.get().equals(RequestState.REJECTED)) {
+                    request.setStatus(from.get());
+                    rejectedRequests.add(request);
+                } else if (from.get().equals(RequestState.CONFIRMED)) {
+                    request.setStatus(from.get());
+                    request.getEvent().setConfirmedRequests(request.getEvent().getConfirmedRequests() + 1L);
+                    confirmedRequests.add(request);
+                }
             } else {
                 break;
             }
         }
-        requests.removeAll(confirmedRequests);
+        if (!confirmedRequests.isEmpty()) {
+            requestRepository.saveAll(confirmedRequests);
+            eventRepository.saveAll(confirmedRequests.stream().map(ParticipationRequestDto::getEvent).collect(Collectors.toList()));
+        }
+        if (!rejectedRequests.isEmpty()) {
+            requestRepository.saveAll(rejectedRequests);
+            eventRepository.saveAll(rejectedRequests.stream().map(ParticipationRequestDto::getEvent).collect(Collectors.toList()));
+        }
         return new EventRequestStatusUpdateResult(confirmedRequests.stream()
                 .map(ParticipationRequestMapper::toParticipationRequest)
                 .collect(Collectors.toList()),
-                requests.stream()
-                .map(ParticipationRequestMapper::toParticipationRequest)
-                .collect(Collectors.toList()));
+                rejectedRequests.stream()
+                        .map(ParticipationRequestMapper::toParticipationRequest)
+                        .collect(Collectors.toList()));
     }
 
     private CategoryDto checkForCategory(long catId) {

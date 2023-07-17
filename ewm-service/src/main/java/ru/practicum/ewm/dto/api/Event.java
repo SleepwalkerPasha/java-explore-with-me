@@ -27,14 +27,14 @@ public class Event {
 
     Long views;
 
-    Long confirmedRequests;
+    Long confirmedRequests = 0L;
 
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
 
     @NotNull
-    Boolean paid;
+    Boolean paid = false;
 
     @NotNull
     Category category;
@@ -49,11 +49,11 @@ public class Event {
 
     String description;
 
-    Integer participantLimit;
+    int participantLimit = 0;
 
     LocalDateTime publishedOn;
 
-    Boolean requestModeration;
+    Boolean requestModeration = true;
 
     EventState state;
 }

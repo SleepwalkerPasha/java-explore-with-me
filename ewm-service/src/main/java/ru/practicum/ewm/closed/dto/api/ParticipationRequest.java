@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.ewm.dto.api.EventState;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -23,7 +22,7 @@ public class ParticipationRequest {
 
     Long event;
 
-    EventState status;
+    RequestState status;
 
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")

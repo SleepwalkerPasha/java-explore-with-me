@@ -14,6 +14,7 @@ import ru.practicum.ewm.closed.dto.api.UpdateEventRequest;
 import ru.practicum.ewm.dto.api.Event;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,17 +25,23 @@ public class AdminsEventController {
 
     private final AdminsEventService service;
 
-    @GetMapping(path = "")
-    public List<Event> getEventsByParams(@RequestParam(name = "users") List<Long> users,
-                                         @RequestParam(name = "states") List<String> states,
-                                         @RequestParam(name = "categories") List<Long> categories,
-                                         @RequestParam(name = "rangeStart")
+    @GetMapping
+    public List<Event> getEventsByParams(@RequestParam(name = "users", required = false) @Valid @NotBlank String users,
+                                         @RequestParam(name = "states", required = false) @Valid @NotBlank String states,
+                                         @RequestParam(name = "categories", required = false) @Valid @NotBlank String categories,
+                                         @RequestParam(name = "rangeStart", required = false)
                                          @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
-                                         @RequestParam(name = "rangeEnd")
+                                         @RequestParam(name = "rangeEnd", required = false)
                                          @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
-                                         @RequestParam(name = "from", defaultValue = "0") int from,
-                                         @RequestParam(name = "size", defaultValue = "10") int size) {
-        return service.getEventsByParams(users, states, categories, rangeStart, rangeEnd, from, size);
+                                         @RequestParam(name = "from", required = false, defaultValue = "0") int from,
+                                         @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
+        return service.getEventsByParams(users,
+                states,
+                categories,
+                rangeStart,
+                rangeEnd,
+                from,
+                size);
     }
 
     @PatchMapping(path = "/{eventId}")

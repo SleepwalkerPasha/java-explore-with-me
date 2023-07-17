@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.ewm.dto.api.EventState;
+import ru.practicum.ewm.closed.dto.api.RequestState;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -32,7 +32,7 @@ public class ParticipationRequestDto {
     EventDto event;
 
     @Enumerated(value = EnumType.STRING)
-    EventState status;
+    RequestState status;
 
     LocalDateTime created;
 

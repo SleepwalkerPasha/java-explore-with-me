@@ -4,14 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.practicum.ewm.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.admin.dto.api.NewUserRequest;
 import ru.practicum.ewm.admin.dto.api.UserFull;
 import ru.practicum.ewm.dto.entities.UserDto;
 import ru.practicum.ewm.dto.mapper.UserMapper;
+import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.pagination.PageRequester;
+import ru.practicum.ewm.repository.UserRepository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,16 +26,28 @@ public class AdminsUserService {
 
     private final UserRepository userRepository;
 
-    public List<UserFull> getUsersInUsersIds(List<Long> ids, int from, int size) {
+    @Transactional
+    public List<UserFull> getUsersInUsersIds(String ids, int from, int size) {
         Pageable pageable = PageRequester.of(from, size);
+        List<Long> idsArray;
         log.info("admin: get users");
-        return userRepository.findUserDtosByIds(ids, pageable)
-                .stream()
-                .map(UserMapper::toUserFull)
-                .collect(Collectors.toList());
+        if (ids != null && !ids.isBlank()) {
+            idsArray = Arrays.stream(ids.split(",")).map(Long::parseLong).collect(Collectors.toList());
+            return userRepository.findUserDtosByIds(idsArray, pageable)
+                    .stream()
+                    .map(UserMapper::toUserFull)
+                    .collect(Collectors.toList());
+        } else {
+            return userRepository.findUserDtosByIds(pageable).stream().map(UserMapper::toUserFull).collect(Collectors.toList());
+        }
     }
 
+    @Transactional
     public UserFull createUser(NewUserRequest userRequest) {
+        Optional<UserDto> optionalUserDto = userRepository.getUserDtoByEmailAndName(userRequest.getEmail(), userRequest.getName());
+        if (optionalUserDto.isPresent()) {
+            throw new ConflictException("user already exist");
+        }
         UserDto userDto = new UserDto();
         userDto.setName(userRequest.getName());
         userDto.setEmail(userRequest.getEmail());
@@ -40,6 +55,7 @@ public class AdminsUserService {
         return UserMapper.toUserFull(userRepository.save(userDto));
     }
 
+    @Transactional
     public void deleteUser(Long userId) {
         Optional<UserDto> userDtoOptional = userRepository.findById(userId);
         if (userDtoOptional.isEmpty()) {

@@ -14,6 +14,7 @@ import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.repository.CompilationRepository;
 import ru.practicum.ewm.repository.EventRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,13 +33,17 @@ public class AdminsCompilationService {
         CompilationDto compilationDto = new CompilationDto();
         compilationDto.setPinned(newCompilation.getPinned());
         compilationDto.setTitle(newCompilation.getTitle());
-
-        List<EventDto> compilationEventDtos = eventRepository.getEventDtoByEventIds(newCompilation.getEvents());
-        compilationDto.setEvents(compilationEventDtos);
+        if (newCompilation.getEvents() != null && !newCompilation.getEvents().isEmpty()) {
+            List<EventDto> compilationEventDtos = eventRepository.getEventDtoByEventIds(newCompilation.getEvents());
+            compilationDto.setEvents(compilationEventDtos);
+        } else {
+            compilationDto.setEvents(new ArrayList<>());
+        }
         log.info("create compilation with title {}", newCompilation.getTitle());
         return CompilationMapper.toCompilation(compilationRepository.save(compilationDto));
     }
 
+    @Transactional
     public void deleteCompilation(long compId) {
         checkForCompilation(compId);
         compilationRepository.deleteById(compId);
@@ -48,12 +53,11 @@ public class AdminsCompilationService {
     @Transactional
     public Compilation updateCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest) {
         CompilationDto compilationDto = checkForCompilation(compId);
-
         if (updateCompilationRequest.getPinned() != null) {
             compilationDto.setPinned(updateCompilationRequest.getPinned());
         }
         Set<Long> events = updateCompilationRequest.getEvents();
-        if (events != null) {
+        if (events != null && !events.isEmpty()) {
             List<EventDto> compilationEventDtos = eventRepository.getEventDtoByEventIds(events);
             compilationDto.setEvents(compilationEventDtos);
         }

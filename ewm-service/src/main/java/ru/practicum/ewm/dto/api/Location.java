@@ -15,5 +15,4 @@ public class Location {
     Double lat;
 
     Double lon;
-    
 }
