@@ -22,7 +22,7 @@ public class CompilationService {
 
     private final CompilationRepository compilationRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Compilation> getAllCompilations(boolean pinned, int from, int size) {
         log.info("public: get compilations");
         return compilationRepository.getCompilationDtosByPinned(pinned, PageRequester.of(from, size))
@@ -31,7 +31,7 @@ public class CompilationService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Compilation getCompilationById(long id) {
         Optional<CompilationDto> byId = compilationRepository.getCompilationDtoById(id);
         if (byId.isEmpty()) {

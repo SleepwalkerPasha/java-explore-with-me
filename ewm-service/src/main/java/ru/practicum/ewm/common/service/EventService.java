@@ -47,7 +47,7 @@ public class EventService {
 
     private final ObjectMapper objectMapper;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<EventShort> getEvents(String text,
                                       List<Long> categories,
                                       Boolean paid,
@@ -75,14 +75,14 @@ public class EventService {
                 ip,
                 LocalDateTime.now()));
 
-        List<EventDto> events = creatingRequestPublic(text,
+        List<EventShort> events = creatingRequestPublic(text,
                 categories,
                 paid,
                 start,
                 rangeEnd,
                 onlyAvailable,
                 pageable
-        ).toList();
+        ).stream().map(EventMapper::toEventShort).collect(Collectors.toList());
 
         ResponseEntity<Object> response = hitsClient.getStats(start,
                 LocalDateTime.now(),
@@ -92,12 +92,11 @@ public class EventService {
         });
         if (!stats.isEmpty()) {
             events.forEach(x -> x.setViews(stats.get(0).getHits()));
-            eventRepository.saveAll(events);
         }
-        return events.stream().map(EventMapper::toEventShort).collect(Collectors.toList());
+        return events;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Event getEventById(long id, String uri, String ip) {
         Optional<EventDto> byId = eventRepository.findById(id);
         if (byId.isEmpty() || !byId.get().getState().equals(EventState.PUBLISHED)) {
@@ -107,7 +106,7 @@ public class EventService {
                 uri,
                 ip,
                 LocalDateTime.now()));
-        EventDto eventById = byId.get();
+        Event eventById = EventMapper.toEvent(byId.get());
         log.info("public: get event by id {}", id);
 
         ResponseEntity<Object> response = hitsClient
@@ -116,9 +115,8 @@ public class EventService {
         });
         if (!stats.isEmpty()) {
             eventById.setViews(stats.get(0).getHits());
-            eventRepository.save(eventById);
         }
-        return EventMapper.toEvent(eventById);
+        return eventById;
     }
 
     private void validateDateTime(LocalDateTime rangeStart, LocalDateTime rangeEnd) {

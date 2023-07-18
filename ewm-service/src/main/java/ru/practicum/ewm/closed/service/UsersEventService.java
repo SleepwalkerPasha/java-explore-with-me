@@ -48,6 +48,7 @@ public class UsersEventService {
 
     private final RequestRepository requestRepository;
 
+    @Transactional(readOnly = true)
     public List<EventShort> getUsersAddedEvents(long userId, int from, int size) {
         checkForUser(userId);
         log.info("private: get user id {} added events", userId);
@@ -67,11 +68,11 @@ public class UsersEventService {
         eventDto.setCreatedOn(LocalDateTime.now());
         eventDto.setState(EventState.PENDING);
         eventDto.setConfirmedRequests(0L);
-        eventDto.setViews(0L);
         log.info("private: add new event user id {}", userId);
         return EventMapper.toEvent(eventRepository.save(eventDto));
     }
 
+    @Transactional(readOnly = true)
     public Event getUsersEventById(Long userId, Long eventId) {
         checkForUser(userId);
         Optional<EventDto> eventDtoByInitiatorIdAndId = eventRepository.findEventDtoByInitiator_IdAndId(userId, eventId);
@@ -120,14 +121,12 @@ public class UsersEventService {
         eventDto.setInitiator(userDto);
         eventDto.setCreatedOn(oldEvent.getCreatedOn());
         eventDto.setConfirmedRequests(oldEvent.getConfirmedRequests());
-        eventDto.setViews(oldEvent.getViews());
         log.info("private: update event user id {} event id {}", userId, eventId);
         return EventMapper.toEvent(eventRepository.save(eventDto));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ParticipationRequest> getRequestToUsersEvent(Long userId, Long eventId) {
-        checkForUser(userId);
         getUsersEventById(userId, eventId);
         log.info("private: get requests user id {} event id {}", userId, eventId);
         return requestRepository.findParticipationRequestDtoByEventIdAndInitiatorId(eventId, userId)
@@ -140,7 +139,6 @@ public class UsersEventService {
     public EventRequestStatusUpdateResult updateRequestsToUsersEvent(Long userId,
                                                                      Long eventId,
                                                                      EventRequestStatusUpdateRequest updateRequest) {
-        checkForUser(userId);
         Event usersEventById = getUsersEventById(userId, eventId);
         List<ParticipationRequestDto> requests = requestRepository
                 .findParticipationRequestDtosInRequestIds(updateRequest.getRequestIds());

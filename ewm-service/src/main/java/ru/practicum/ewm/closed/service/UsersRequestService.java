@@ -3,6 +3,7 @@ package ru.practicum.ewm.closed.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.closed.dto.api.ParticipationRequest;
 import ru.practicum.ewm.closed.dto.api.RequestState;
 import ru.practicum.ewm.closed.repository.RequestRepository;
@@ -32,6 +33,7 @@ public class UsersRequestService {
 
     private final EventRepository eventRepository;
 
+    @Transactional(readOnly = true)
     public List<ParticipationRequest> getParticipationRequestsByUserId(long userId) {
         checkForUser(userId);
         log.info("private: get requests userID {}", userId);
@@ -41,6 +43,7 @@ public class UsersRequestService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public ParticipationRequest createParticipationRequest(long userId, long eventId) {
         UserDto userDto = checkForUser(userId);
         EventDto eventDto = checkForEvent(eventId);
@@ -71,6 +74,7 @@ public class UsersRequestService {
         return ParticipationRequestMapper.toParticipationRequest(requestRepository.save(participationRequestDto));
     }
 
+    @Transactional
     public ParticipationRequest cancelParticipationRequest(long userId, long requestId) {
         checkForUser(userId);
         Optional<ParticipationRequestDto> requestDtoOptional = requestRepository.findById(requestId);

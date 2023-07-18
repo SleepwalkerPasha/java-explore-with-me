@@ -20,9 +20,6 @@ public class EventMapper {
         if (eventDto.getTitle() != null) {
             eventShort.setTitle(eventDto.getTitle());
         }
-        if (eventDto.getViews() != null) {
-            eventShort.setViews(eventDto.getViews());
-        }
         if (eventDto.getConfirmedRequests() != null) {
             eventShort.setConfirmedRequests(eventDto.getConfirmedRequests());
         }
@@ -51,9 +48,6 @@ public class EventMapper {
         }
         if (eventDto.getTitle() != null) {
             event.setTitle(eventDto.getTitle());
-        }
-        if (eventDto.getViews() != null) {
-            event.setViews(eventDto.getViews());
         }
         if (eventDto.getConfirmedRequests() != null) {
             event.setConfirmedRequests(eventDto.getConfirmedRequests());
@@ -110,9 +104,6 @@ public class EventMapper {
         }
         if (eventShort.getTitle() != null) {
             eventDto.setTitle(eventShort.getTitle());
-        }
-        if (eventShort.getViews() != null) {
-            eventDto.setViews(eventShort.getViews());
         }
         if (eventShort.getConfirmedRequests() != null) {
             eventDto.setConfirmedRequests(eventShort.getConfirmedRequests());

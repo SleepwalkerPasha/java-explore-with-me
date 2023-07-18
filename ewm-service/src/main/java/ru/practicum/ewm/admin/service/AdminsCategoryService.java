@@ -35,6 +35,7 @@ public class AdminsCategoryService {
         return CategoryMapper.toCategory(categoryRepository.save(categoryDto));
     }
 
+    @Transactional
     public void deleteCategory(long catId) {
         checkForCategory(catId);
         List<EventDto> eventsDtoByCategory = eventRepository.findEventsDtoByCategory(catId);

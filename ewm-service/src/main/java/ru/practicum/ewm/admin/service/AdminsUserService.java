@@ -26,7 +26,7 @@ public class AdminsUserService {
 
     private final UserRepository userRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<UserFull> getUsersInUsersIds(String ids, int from, int size) {
         Pageable pageable = PageRequester.of(from, size);
         List<Long> idsArray;

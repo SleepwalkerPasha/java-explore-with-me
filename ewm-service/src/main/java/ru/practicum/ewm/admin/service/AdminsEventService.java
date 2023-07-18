@@ -41,7 +41,7 @@ public class AdminsEventService {
 
     private final CategoryRepository categoryRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Event> getEventsByParams(String users,
                                          String states,
                                          String categories,
@@ -120,7 +120,6 @@ public class AdminsEventService {
         eventDto.setInitiator(oldEventDto.getInitiator());
         eventDto.setCreatedOn(oldEventDto.getCreatedOn());
         eventDto.setConfirmedRequests(oldEventDto.getConfirmedRequests());
-        eventDto.setViews(oldEventDto.getViews());
         log.info("admin: update event {}", eventId);
         return EventMapper.toEvent(eventRepository.save(eventDto));
     }

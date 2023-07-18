@@ -28,8 +28,6 @@ public class EventDto {
 
     String title;
 
-    Long views;
-
     @Column(name = "confirmed_requests")
     Long confirmedRequests = 0L;
 
