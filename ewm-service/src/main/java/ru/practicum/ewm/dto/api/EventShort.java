@@ -25,7 +25,7 @@ public class EventShort {
     @NotBlank
     String title;
 
-    Long views;
+    Long views = 0L;
 
     Long confirmedRequests;
 

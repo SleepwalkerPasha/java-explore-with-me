@@ -47,7 +47,7 @@ public class UsersRequestService {
     public ParticipationRequest createParticipationRequest(long userId, long eventId) {
         UserDto userDto = checkForUser(userId);
         EventDto eventDto = checkForEvent(eventId);
-        if (eventDto.getInitiator().equals(userDto)) {
+        if (eventDto.getInitiator().getId().equals(userDto.getId())) {
             throw new ConflictException("initiator cant add request to his events");
         } else if (!eventDto.getState().equals(EventState.PUBLISHED)) {
             throw new ConflictException("cant add request to unpublished event");

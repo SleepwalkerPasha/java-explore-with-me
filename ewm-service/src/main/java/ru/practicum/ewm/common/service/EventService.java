@@ -84,15 +84,8 @@ public class EventService {
                 pageable
         ).stream().map(EventMapper::toEventShort).collect(Collectors.toList());
 
-        ResponseEntity<Object> response = hitsClient.getStats(start,
-                LocalDateTime.now(),
-                List.of(uri),
-                true);
-        List<ViewStats> stats = objectMapper.convertValue(response.getBody(), new TypeReference<>() {
-        });
-        if (!stats.isEmpty()) {
-            events.forEach(x -> x.setViews(stats.get(0).getHits()));
-        }
+        events.forEach(x -> x.setViews(x.getViews() + 1));
+
         return events;
     }
 

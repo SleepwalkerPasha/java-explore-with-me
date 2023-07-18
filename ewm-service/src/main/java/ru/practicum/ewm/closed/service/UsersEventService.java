@@ -142,6 +142,9 @@ public class UsersEventService {
         Event usersEventById = getUsersEventById(userId, eventId);
         List<ParticipationRequestDto> requests = requestRepository
                 .findParticipationRequestDtosInRequestIds(updateRequest.getRequestIds());
+        if (requests.isEmpty()) {
+            throw new ConflictException("Only pending requests can be updated");
+        }
         log.info("private: update requests userId {} eventId {}", userId, eventId);
         if (usersEventById.getParticipantLimit() == 0 || usersEventById.getRequestModeration().equals(false)) {
             return new EventRequestStatusUpdateResult(requests
@@ -150,17 +153,14 @@ public class UsersEventService {
                     .collect(Collectors.toList()),
                     new ArrayList<>());
         }
-        Integer participantLimit = usersEventById.getParticipantLimit();
-        if (usersEventById.getConfirmedRequests().equals(participantLimit.longValue())) {
+        int participantLimit = usersEventById.getParticipantLimit();
+        if (usersEventById.getConfirmedRequests() >= participantLimit) {
             throw new ConflictException("The participant limit has been reached");
-        }
-        if (requests.stream().noneMatch(x -> x.getStatus().equals(RequestState.PENDING))) {
-            throw new ConflictException("Only pending requests can be updated");
         }
         List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
         List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
         for (ParticipationRequestDto request : requests) {
-            if (!participantLimit.equals(confirmedRequests.size())) {
+            if (request.getEvent().getConfirmedRequests() < participantLimit) {
                 Optional<RequestState> from = RequestState.from(updateRequest.getStatus());
                 if (from.isEmpty()) {
                     throw new ConflictException(String.format("invalid state %s", updateRequest.getStatus()));
