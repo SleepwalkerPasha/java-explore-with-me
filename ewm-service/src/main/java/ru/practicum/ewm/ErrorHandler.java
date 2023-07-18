@@ -9,7 +9,7 @@ import ru.practicum.ewm.dto.api.ApiError;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.ForbiddenException;
 import ru.practicum.ewm.exception.NotFoundException;
-import ru.practicum.ewm.exception.StartBeforeEndException;
+import ru.practicum.ewm.exception.StartAfterEndException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -53,7 +53,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleStartBeforeEndException(final StartBeforeEndException e) {
+    public ApiError handleStartBeforeEndException(final StartAfterEndException e) {
         log.error(e.getMessage());
         return new ApiError(e.getMessage(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +19,7 @@ import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -45,5 +47,12 @@ public class ServerController {
         List<ViewStats> stats = service.getViewStatistics(start, end, Arrays.stream(uris.split(",")).collect(Collectors.toList()), unique);
         log.info("receive stats requests {}", stats);
         return stats;
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleBadRequest(final IllegalArgumentException e) {
+        log.error(e.getMessage());
+        return Map.of(e.getMessage(), HttpStatus.BAD_REQUEST.name());
     }
 }

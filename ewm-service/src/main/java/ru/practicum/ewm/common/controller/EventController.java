@@ -15,6 +15,7 @@ import ru.practicum.ewm.dto.api.EventShort;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,10 +41,15 @@ public class EventController {
                                       @RequestParam(name = "from", required = false, defaultValue = "0") int from,
                                       @RequestParam(name = "size", required = false, defaultValue = "10") int size,
                                       HttpServletRequest request) {
+        List<Long> categoriesList = new ArrayList<>();
+        if (!categories.isBlank()) {
+            categoriesList = Arrays.stream(categories.split(","))
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList());
+        }
         return eventService.getEvents(text,
-                Arrays.stream(categories.split(","))
-                        .map(Long::parseLong)
-                        .collect(Collectors.toList()), paid,
+                categoriesList,
+                paid,
                 rangeStart,
                 rangeEnd,
                 onlyAvailable,

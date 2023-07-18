@@ -19,7 +19,7 @@ import ru.practicum.ewm.dto.api.EventState;
 import ru.practicum.ewm.dto.entities.EventDto;
 import ru.practicum.ewm.dto.mapper.EventMapper;
 import ru.practicum.ewm.exception.NotFoundException;
-import ru.practicum.ewm.exception.StartBeforeEndException;
+import ru.practicum.ewm.exception.StartAfterEndException;
 import ru.practicum.ewm.pagination.PageRequester;
 import ru.practicum.ewm.repository.EventRepository;
 
@@ -123,7 +123,7 @@ public class EventService {
 
     private void validateDateTime(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
         if (rangeStart.isAfter(rangeEnd)) {
-            throw new StartBeforeEndException("invalid rangeEnd, rangeStart params: rangeStart is before rangeEnd");
+            throw new StartAfterEndException("invalid rangeEnd, rangeStart params: rangeStart is after rangeEnd");
         }
     }
 
