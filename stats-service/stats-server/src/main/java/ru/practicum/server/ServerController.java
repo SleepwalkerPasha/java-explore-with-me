@@ -40,7 +40,7 @@ public class ServerController {
                                                      pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
                                              @RequestParam(name = "end")
                                              @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
-                                             @RequestParam(name = "uris", required = false) String uris,
+                                             @RequestParam(name = "uris", required = false, defaultValue = "") String uris,
                                              @RequestParam(name = "unique", required = false, defaultValue = "false") Boolean unique) {
         List<ViewStats> stats = service.getViewStatistics(start, end, Arrays.stream(uris.split(",")).collect(Collectors.toList()), unique);
         log.info("receive stats requests {}", stats);

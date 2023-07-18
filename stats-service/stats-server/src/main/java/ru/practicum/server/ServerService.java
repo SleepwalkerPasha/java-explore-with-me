@@ -4,11 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.EndpointRequest;
-import ru.practicum.server.dto.EndpointHit;
 import ru.practicum.dto.ViewStats;
+import ru.practicum.server.dto.EndpointHit;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class ServerService {
         if (start.isAfter(end)) {
             throw new IllegalArgumentException("Invalid time interval");
         }
-        if (uris == null || uris.isEmpty()) {
+        if (uris == null || uris.isEmpty() || (uris.size() == 1 && uris.get(0).equals(""))) {
             if (unique) {
                 return serverRepository.findAllViewedEndpointsUnique(start, end);
             } else {
