@@ -28,6 +28,7 @@ import javax.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -84,7 +85,15 @@ public class EventService {
                 pageable
         ).stream().map(EventMapper::toEventShort).collect(Collectors.toList());
 
-        events.forEach(x -> x.setViews(x.getViews() + 1));
+        List<String> eventEndpoints = events.stream().map(x -> String.format("/events/%d", x.getId())).collect(Collectors.toList());
+
+        ResponseEntity<Object> response = hitsClient.getStats(start, LocalDateTime.now(), eventEndpoints, true);
+
+        List<ViewStats> stats = objectMapper.convertValue(response.getBody(), new TypeReference<>() {
+        });
+        Map<Long, Long> viewStats = stats.stream().collect(Collectors.toMap(x -> Long.parseLong(x.getUri().substring(8)), ViewStats::getHits));
+
+        events.forEach(x -> x.setViews(viewStats.get(x.getId())));
 
         return events;
     }
