@@ -1,4 +1,4 @@
-package ru.practicum.server.dto;
+package ru.practicum.ewm.dto.api;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -7,14 +7,12 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@NoArgsConstructor
-public class ViewStats {
+public class Location {
 
-    String app;
+    Double lat;
 
-    String uri;
-
-    Long hits;
+    Double lon;
 }
