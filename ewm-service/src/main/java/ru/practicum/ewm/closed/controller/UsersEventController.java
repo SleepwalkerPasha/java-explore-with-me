@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.ewm.closed.service.UsersEventService;
-import ru.practicum.ewm.dto.api.Event;
 import ru.practicum.ewm.closed.dto.api.EventRequestStatusUpdateRequest;
 import ru.practicum.ewm.closed.dto.api.EventRequestStatusUpdateResult;
-import ru.practicum.ewm.dto.api.EventShort;
 import ru.practicum.ewm.closed.dto.api.NewEvent;
 import ru.practicum.ewm.closed.dto.api.ParticipationRequest;
 import ru.practicum.ewm.closed.dto.api.UpdateEventRequest;
+import ru.practicum.ewm.closed.service.UsersEventService;
+import ru.practicum.ewm.dto.api.Event;
+import ru.practicum.ewm.dto.api.EventShort;
 import ru.practicum.ewm.exception.ForbiddenException;
 
 import javax.validation.Valid;

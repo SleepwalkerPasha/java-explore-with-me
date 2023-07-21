@@ -13,10 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.client.StatsClient;
 import ru.practicum.dto.EndpointRequest;
 import ru.practicum.dto.ViewStats;
+import ru.practicum.ewm.closed.repository.CommentRepository;
 import ru.practicum.ewm.dto.api.Event;
 import ru.practicum.ewm.dto.api.EventShort;
 import ru.practicum.ewm.dto.api.EventState;
 import ru.practicum.ewm.dto.entities.EventDto;
+import ru.practicum.ewm.dto.mapper.CommentMapper;
 import ru.practicum.ewm.dto.mapper.EventMapper;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.StartAfterEndException;
@@ -47,6 +49,8 @@ public class EventService {
     private final StatsClient hitsClient;
 
     private final ObjectMapper objectMapper;
+
+    private final CommentRepository commentRepository;
 
     @Transactional(readOnly = true)
     public List<EventShort> getEvents(String text,
@@ -118,6 +122,7 @@ public class EventService {
         if (!stats.isEmpty()) {
             eventById.setViews(stats.get(0).getHits());
         }
+        eventById.setComments(commentRepository.findCommentsByEventId(id).stream().map(CommentMapper::toComment).collect(Collectors.toList()));
         return eventById;
     }
 
