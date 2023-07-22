@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -37,5 +39,9 @@ public class CommentDto {
     @JoinColumn(name = "event_id")
     EventDto event;
 
+    @CreationTimestamp
     LocalDateTime created;
+
+    @UpdateTimestamp
+    LocalDateTime edited;
 }

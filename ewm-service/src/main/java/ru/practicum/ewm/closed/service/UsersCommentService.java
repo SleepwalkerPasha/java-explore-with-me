@@ -44,7 +44,6 @@ public class UsersCommentService {
         commentDto.setText(newComment.getText());
         commentDto.setEvent(eventDto);
         commentDto.setAuthor(userDto);
-        commentDto.setCreated(LocalDateTime.now());
         return CommentMapper.toComment(commentRepository.save(commentDto));
     }
 

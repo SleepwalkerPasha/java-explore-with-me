@@ -53,6 +53,7 @@ create table if not exists comments
     text       varchar(7000)                           not null,
     event_id   bigint                                  not null,
     created timestamp without time zone             not null,
+    edited timestamp without time zone,
     constraint pk_comments primary key (id),
     constraint fk_comments_users foreign key (author_id) references users (id) on delete cascade,
     constraint fk_comments_events foreign key (event_id) references events (id) on delete cascade
