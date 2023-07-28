@@ -8,10 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.admin.dto.api.AdminStateAction;
 import ru.practicum.ewm.closed.dto.api.UpdateEventRequest;
+import ru.practicum.ewm.closed.repository.CommentRepository;
 import ru.practicum.ewm.dto.api.Event;
 import ru.practicum.ewm.dto.api.EventState;
 import ru.practicum.ewm.dto.entities.CategoryDto;
 import ru.practicum.ewm.dto.entities.EventDto;
+import ru.practicum.ewm.dto.mapper.CommentMapper;
 import ru.practicum.ewm.dto.mapper.EventMapper;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.ForbiddenException;
@@ -40,6 +42,8 @@ public class AdminsEventService {
     private final EventRepository eventRepository;
 
     private final CategoryRepository categoryRepository;
+
+    private final CommentRepository commentRepository;
 
     @Transactional(readOnly = true)
     public List<Event> getEventsByParams(String users,
@@ -121,7 +125,9 @@ public class AdminsEventService {
         eventDto.setCreatedOn(oldEventDto.getCreatedOn());
         eventDto.setConfirmedRequests(oldEventDto.getConfirmedRequests());
         log.info("admin: update event {}", eventId);
-        return EventMapper.toEvent(eventRepository.save(eventDto));
+        Event event = EventMapper.toEvent(eventRepository.save(eventDto));
+        event.setComments(commentRepository.findCommentsByEventId(eventId).stream().map(CommentMapper::toComment).collect(Collectors.toList()));
+        return event;
     }
 
     private CategoryDto checkForCategory(long catId) {

@@ -10,6 +10,8 @@ import lombok.experimental.FieldDefaults;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -51,9 +53,12 @@ public class Event {
 
     int participantLimit = 0;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime publishedOn;
 
     Boolean requestModeration = true;
 
     EventState state;
+
+    List<Comment> comments = new ArrayList<>();
 }

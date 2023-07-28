@@ -11,6 +11,7 @@ import ru.practicum.ewm.closed.dto.api.ParticipationRequest;
 import ru.practicum.ewm.closed.dto.api.RequestState;
 import ru.practicum.ewm.closed.dto.api.StateAction;
 import ru.practicum.ewm.closed.dto.api.UpdateEventRequest;
+import ru.practicum.ewm.closed.repository.CommentRepository;
 import ru.practicum.ewm.closed.repository.RequestRepository;
 import ru.practicum.ewm.dto.api.Event;
 import ru.practicum.ewm.dto.api.EventShort;
@@ -19,6 +20,7 @@ import ru.practicum.ewm.dto.entities.CategoryDto;
 import ru.practicum.ewm.dto.entities.EventDto;
 import ru.practicum.ewm.dto.entities.ParticipationRequestDto;
 import ru.practicum.ewm.dto.entities.UserDto;
+import ru.practicum.ewm.dto.mapper.CommentMapper;
 import ru.practicum.ewm.dto.mapper.EventMapper;
 import ru.practicum.ewm.dto.mapper.ParticipationRequestMapper;
 import ru.practicum.ewm.exception.ConflictException;
@@ -47,6 +49,8 @@ public class UsersEventService {
     private final CategoryRepository categoryRepository;
 
     private final RequestRepository requestRepository;
+
+    private final CommentRepository commentRepository;
 
     @Transactional(readOnly = true)
     public List<EventShort> getUsersAddedEvents(long userId, int from, int size) {
@@ -79,8 +83,10 @@ public class UsersEventService {
         if (eventDtoByInitiatorIdAndId.isEmpty()) {
             throw new NotFoundException(String.format("Event with id=%d was not found", eventId));
         }
+        Event event = EventMapper.toEvent(eventDtoByInitiatorIdAndId.get());
+        event.setComments(commentRepository.findCommentsByEventId(eventId).stream().map(CommentMapper::toComment).collect(Collectors.toList()));
         log.info("private: get event user id {} event id {}", userId, eventId);
-        return EventMapper.toEvent(eventDtoByInitiatorIdAndId.get());
+        return event;
     }
 
     @Transactional
@@ -122,7 +128,9 @@ public class UsersEventService {
         eventDto.setCreatedOn(oldEvent.getCreatedOn());
         eventDto.setConfirmedRequests(oldEvent.getConfirmedRequests());
         log.info("private: update event user id {} event id {}", userId, eventId);
-        return EventMapper.toEvent(eventRepository.save(eventDto));
+        Event event = EventMapper.toEvent(eventRepository.save(eventDto));
+        event.setComments(commentRepository.findCommentsByEventId(eventId).stream().map(CommentMapper::toComment).collect(Collectors.toList()));
+        return event;
     }
 
     @Transactional(readOnly = true)
